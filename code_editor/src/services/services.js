@@ -8,6 +8,7 @@ var headers ={
 }
 
 export const postCodeUrl = async (value) => {
+    console.log(process.env.NODE_ENV);
     let source = value
     let formBody = new FormData();
     formBody.set("client_secret", CLIENT_SECRET);
