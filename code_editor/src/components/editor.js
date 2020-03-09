@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactAceEditor from 'react-ace';
-import { Button, Grid } from '@material-ui/core';
+import { Button, Grid, Select, FormControl, InputLabel, MenuItem } from '@material-ui/core';
+import { connect } from 'react-redux';
 
-import { postCodeUrl } from '../services/services.js';
 import ResultScreen from './resultScreen';
+import * as Actions from '../actions';
+import { EDITOR_MODE } from '../util';
 
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-terminal";
@@ -11,56 +13,92 @@ import "ace-builds/src-noconflict/theme-terminal";
 class Editor extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { value: '', output: 'Loading' }
+    this.state = { value: '', selectValue: 'JavaScript' }
   }
   onChange = (newValue) => {
     this.setState({ value: newValue })
   }
 
-  buttonClicked = async () => {
-    var result = await postCodeUrl(this.state.value)
-    // console.log(result)
-    this.setState({ output: result })
-    // console.log('b'+this.state.value)
-
+  onDDChange = (event) => {
+    this.setState({ selectValue: event.target.value })
   }
+
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          React Code Editor
+        <div flexgrow={1}>
+          <Grid container spacing={4}>
+            <Grid item xs >
+              <header className="App-header" style={{fontWeight:1000,fontSize:'500%'}}>
+                Code Editor
               </header>
-              <div flexGrow={1}>
-        <Grid container spacing={3}>
-          <Grid item xs>
-            <div style={{ flexGrow: 1 }} className="row">
-              <ReactAceEditor
-                mode="javascript"
-                theme="terminal"
-                onChange={this.onChange}
-                name="UNIQUE_ID_OF_DIV"
-                editorProps={{ $blockScrolling: true }}
-                value={this.state.value}
-              />
-              <Button
-                variant="contained"
-                color="default"
-                onClick={this.buttonClicked}>
-                Execute
+            </Grid>
+            <Grid item xs >
+              <div >
+                <FormControl >
+                  <InputLabel id="demo-simple-select-label">Select LANGUAGE</InputLabel>
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    style={{ width: 200 }}
+                    value={this.state.selectValue}
+                    onChange={this.onDDChange}
+                  >
+                    {Object.entries(EDITOR_MODE).map((value) =>
+                      <MenuItem value={value[1]} key={value[1]}>{value[0]}</MenuItem>
+                    )}
+                  </Select>
+                </FormControl>
+              </div>
+            </Grid>
+          </Grid>
+        </div>
+        <div flexgrow={1}>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <div style={{ flexGrow: 1 }} className="row">
+                <ReactAceEditor
+                  mode={this.state.selectValue}
+                  theme="terminal"
+                  style={{ width: '90%' }}
+                  onChange={this.onChange}
+                  name="UNIQUE_ID_OF_DIV"
+                  editorProps={{ $blockScrolling: true }}
+                  value={this.state.value}
+                />
+                <div style={{padding:'5%'}}>
+                <Button
+                  variant="contained"
+                  color="default"
+                  onClick={() => this.props.buttonClicked(this.state.value, this.state.selectValue)}>
+                  Execute
                 </Button>
-
-            </div>
+                </div>
+              </div>
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <div style={{ padding: '5%', marginLeft: 5, border: '10', backgroundColor: 'grey',width:'90%' }}>
+                <ResultScreen output={this.props.componentState.executeReducer.output} />
+              </div>
+            </Grid>
           </Grid>
-          <Grid item xs>
-            <div style={{ padding: 20, border: '10', borderColor: 'blue' }}>
-              <ResultScreen output={this.state.output} />
-            </div>
-          </Grid>
-        </Grid>
         </div>
       </div>
     );
   }
 }
 
-export default Editor;
+const mapStateToProps = (state) => {
+  console.log(state)
+  return {
+    componentState: state
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    buttonClicked: (value, selectLang) => dispatch(Actions.ExecuteAction(value, selectLang))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Editor);
