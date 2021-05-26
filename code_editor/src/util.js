@@ -1,4 +1,4 @@
-export const RUN_URL = 'https://api.hackerearth.com/v3/code/run/'
+export const RUN_URL = 'https://api.hackerearth.com/v4/partner/code-evaluation/submissions/'
 // export const CLIENT_SECRET = process.env.REACT_APP_HackerearthApiKey
 export const CLIENT_SECRET = 'd6ea498546635e8400e62fd93a59cbf55bafda73'
 export const LANGUAGE = {'JavaScript':'JAVASCRIPT_NODE','C':'C', 'C++':'CPP', 'C++11':'CPP11', 'Clojure':'CLOJURE',
